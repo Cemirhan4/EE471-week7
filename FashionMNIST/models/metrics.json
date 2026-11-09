@@ -1,0 +1,118 @@
+{
+  "dataset": "Fashion-MNIST",
+  "classes": [
+    "T-shirt/top",
+    "Trouser",
+    "Pullover",
+    "Dress",
+    "Coat",
+    "Sandal",
+    "Shirt",
+    "Sneaker",
+    "Bag",
+    "Ankle boot"
+  ],
+  "baseline": {
+    "architecture": "3-Layer MLP (Linear 784->512->512->10)",
+    "optimizer": "SGD",
+    "learning_rate": 0.001,
+    "epochs": 5,
+    "batch_size": 64,
+    "final_test_loss": 0.7276,
+    "final_test_accuracy": 74.6,
+    "training_time_seconds": 103.1,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 2.035895404624939,
+        "val_loss": 1.713777470740543,
+        "val_acc": 55.04
+      },
+      {
+        "epoch": 2,
+        "train_loss": 1.4031478825251262,
+        "val_loss": 1.163517710889221,
+        "val_acc": 69.03
+      },
+      {
+        "epoch": 3,
+        "train_loss": 1.0152502882003784,
+        "val_loss": 0.9143910863596922,
+        "val_acc": 72.17
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.8375550746917725,
+        "val_loss": 0.7934804509399803,
+        "val_acc": 73.72999999999999
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.7457835899035136,
+        "val_loss": 0.7275791545962073,
+        "val_acc": 74.6
+      }
+    ]
+  },
+  "optimized": {
+    "architecture": "Deep CNN (Conv2D(32->64->128) + BatchNorm + MaxPool + Dropout + Dense(256->10))",
+    "optimizer": "Adam (weight_decay=1e-4)",
+    "learning_rate": 0.001,
+    "epochs": 8,
+    "batch_size": 64,
+    "final_test_loss": 0.1957,
+    "final_test_accuracy": 92.84,
+    "training_time_seconds": 1217.2,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.41256100317637123,
+        "val_loss": 0.2734164014268833,
+        "val_acc": 90.28
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.2876490218400955,
+        "val_loss": 0.24951290481599273,
+        "val_acc": 90.82000000000001
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.2580380685846011,
+        "val_loss": 0.2236506330074778,
+        "val_acc": 91.60000000000001
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.23709813387791315,
+        "val_loss": 0.21936393296642667,
+        "val_acc": 91.74
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.2240394331216812,
+        "val_loss": 0.2123316099072338,
+        "val_acc": 92.22
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.21095545196533202,
+        "val_loss": 0.20190276651625422,
+        "val_acc": 92.66
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.2029745736002922,
+        "val_loss": 0.19797016613802332,
+        "val_acc": 92.9
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.19107796076933542,
+        "val_loss": 0.19568164321552417,
+        "val_acc": 92.84
+      }
+    ]
+  },
+  "accuracy_gain_percent": 18.24
+}

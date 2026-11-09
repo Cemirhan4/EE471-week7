@@ -1,0 +1,35 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Large raw training dataset archives (auto-downloaded by torchvision)
+**/data/
+FashionMNIST/data/
+CIFAR10/data/
+
+# User uploads & temporary audio/images
+web_app/static/uploads/*
+!web_app/static/uploads/.gitkeep
+
+# Environment variables & secrets
+.env
+.env.local
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor configs
+.vscode/
+.idea/
+*.swp

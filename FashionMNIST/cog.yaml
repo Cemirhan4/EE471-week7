@@ -1,0 +1,6 @@
+build:
+  gpu: false
+  python_version: "3.11"
+  run:
+    - "pip install --timeout 1000 --retries 10 --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision pillow"
+run: "predict.py:Predictor"

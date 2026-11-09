@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EE471 — AI Garment & Object Classifier Studio (Week 7)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="course-pill">EE471 • Week #7 In-Class Exercise</span>
+        <h1 class="main-title">AI Classifier Studio</h1>
+        <p class="subtitle">Side-by-Side Model Benchmarking & Hyperparameter Optimization</p>
+      </div>
+      <div class="header-right">
+        <div class="student-badge">
+          <span class="avatar">C</span>
+          <div class="student-info">
+            <span class="student-name">Cemirhan</span>
+            <span class="student-school">Izmir Institute of Technology</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dataset Selector Switcher -->
+    <section class="dataset-switcher-bar">
+      <span class="switcher-label">Target Dataset:</span>
+      <div class="segmented-control" id="dataset-selector">
+        <button type="button" class="segment-btn active" data-dataset="fashion">
+          <span class="icon">👕</span>
+          <span class="text">Fashion-MNIST <em>(Garments)</em></span>
+        </button>
+        <button type="button" class="segment-btn" data-dataset="cifar">
+          <span class="icon">🚗</span>
+          <span class="text">CIFAR-10 <em>(Objects & Animals)</em></span>
+        </button>
+      </div>
+      <button type="button" class="metrics-toggle-btn" id="metrics-modal-btn">
+        📊 View Training Metrics & Hyperparameters
+      </button>
+    </section>
+
+    <!-- Main Workspace Grid -->
+    <main class="workspace-grid">
+      <!-- Left Column: Upload & Sample Selector -->
+      <section class="card upload-card">
+        <div class="card-header">
+          <span class="card-tag">INPUT DATA</span>
+          <h2 class="card-title">Upload Image to Classify</h2>
+          <p class="card-desc">Drop an image or select a pre-loaded test sample from the dataset.</p>
+        </div>
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/*" class="file-input-hidden">
+          <div class="drop-content" id="drop-content-idle">
+            <div class="upload-icon-circle">📁</div>
+            <p class="drop-title">Drag & drop your image here</p>
+            <p class="drop-hint">or <span class="browse-link">browse files</span> (PNG, JPG, WEBP)</p>
+          </div>
+          <div class="drop-preview-container" id="drop-preview-container" style="display: none;">
+            <img id="image-preview" src="" alt="Preview">
+            <button type="button" class="remove-image-btn" id="remove-image-btn" title="Remove image">×</button>
+            <span class="preview-filename" id="preview-filename"></span>
+          </div>
+        </div>
+
+        <!-- Quick Test Samples -->
+        <div class="samples-section">
+          <span class="samples-title">⚡ Quick Dataset Samples:</span>
+          <div class="samples-chips" id="samples-chips">
+            <!-- Dynamically populated -->
+            <span class="loading-chips">Loading samples...</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="classify-btn" disabled>
+          <span class="btn-text">Run Side-by-Side Classification</span>
+          <span class="btn-spinner" style="display: none;"></span>
+        </button>
+      </section>
+
+      <!-- Right Column: Side-by-Side Comparison -->
+      <section class="card results-card" id="results-card">
+        <div class="card-header results-header">
+          <div>
+            <span class="card-tag tag-accent">BENCHMARK RESULTS</span>
+            <h2 class="card-title">Side-by-Side Comparison</h2>
+          </div>
+          <div class="engine-badge" id="engine-badge">
+            <span class="dot"></span>
+            <span id="engine-text">Ready for inference</span>
+          </div>
+        </div>
+
+        <!-- Idle Placeholder -->
+        <div class="results-idle" id="results-idle">
+          <div class="idle-icon">⚖️</div>
+          <h3>Awaiting Classification</h3>
+          <p>Upload a garment or CIFAR object image on the left to evaluate both the baseline and optimized neural networks simultaneously.</p>
+        </div>
+
+        <!-- Results Display Container -->
+        <div class="results-active-container" id="results-active-container" style="display: none;">
+          <!-- Comparison Banner -->
+          <div class="comparison-banner" id="comparison-banner">
+            <div class="banner-status" id="banner-status">
+              <span class="status-icon" id="banner-icon">🎯</span>
+              <span class="status-text" id="banner-text">Models in agreement</span>
+            </div>
+            <div class="banner-gain" id="banner-gain">
+              <span class="gain-label">Optimized Confidence Gain:</span>
+              <span class="gain-value" id="gain-value">+24.5%</span>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Columns -->
+          <div class="models-comparison-grid">
+            <!-- Model 1: Baseline -->
+            <div class="model-box baseline-box">
+              <div class="model-box-header">
+                <span class="model-type-badge baseline-badge">BASELINE MODEL</span>
+                <h4 class="model-arch-title" id="baseline-model-name">PyTorch Quickstart (MLP)</h4>
+                <p class="model-params-desc">SGD • lr=0.001 • 3 Layers</p>
+              </div>
+
+              <div class="winner-hero">
+                <span class="hero-label">Top Prediction</span>
+                <div class="hero-class" id="baseline-class">—</div>
+                <div class="hero-conf" id="baseline-conf">—</div>
+              </div>
+
+              <div class="top5-section">
+                <span class="top5-heading">Top 5 Class Probabilities:</span>
+                <div class="prob-bars-list" id="baseline-bars"></div>
+              </div>
+            </div>
+
+            <!-- Model 2: Optimized -->
+            <div class="model-box optimized-box">
+              <div class="model-box-header">
+                <span class="model-type-badge optimized-badge">OPTIMIZED MODEL ⭐</span>
+                <h4 class="model-arch-title" id="optimized-model-name">Hyperparameter Tuned (CNN)</h4>
+                <p class="model-params-desc">Adam • BatchNorm • Dropout</p>
+              </div>
+
+              <div class="winner-hero hero-accent">
+                <span class="hero-label">Top Prediction</span>
+                <div class="hero-class" id="optimized-class">—</div>
+                <div class="hero-conf" id="optimized-conf">—</div>
+              </div>
+
+              <div class="top5-section">
+                <span class="top5-heading">Top 5 Class Probabilities:</span>
+                <div class="prob-bars-list" id="optimized-bars"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Metrics & Performance Modal -->
+    <div class="modal-backdrop" id="metrics-modal" style="display: none;">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="modal-title">Model Performance & Hyperparameter Comparison</h3>
+          <button type="button" class="modal-close-btn" id="modal-close-btn">×</button>
+        </div>
+        <div class="modal-body" id="modal-content">
+          <p class="modal-loading">Loading metrics...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

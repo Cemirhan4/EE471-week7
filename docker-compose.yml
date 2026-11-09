@@ -1,0 +1,33 @@
+services:
+  fashion-classifier:
+    build:
+      context: ./FashionMNIST
+      dockerfile: Dockerfile
+    container_name: ee471-fashion-cog
+    ports:
+      - "5001:5000"
+    restart: unless-stopped
+
+  cifar-classifier:
+    build:
+      context: ./CIFAR10
+      dockerfile: Dockerfile
+    container_name: ee471-cifar-cog
+    ports:
+      - "5002:5000"
+    restart: unless-stopped
+
+  web-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ee471-classifier-studio
+    ports:
+      - "5005:5005"
+    environment:
+      - FASHION_COG_URL=http://fashion-classifier:5000/predictions
+      - CIFAR_COG_URL=http://cifar-classifier:5000/predictions
+    depends_on:
+      - fashion-classifier
+      - cifar-classifier
+    restart: unless-stopped

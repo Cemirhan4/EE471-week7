@@ -1,0 +1,118 @@
+{
+  "dataset": "CIFAR-10",
+  "classes": [
+    "airplane",
+    "automobile",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck"
+  ],
+  "baseline": {
+    "architecture": "3-Layer MLP (Linear 3072->512->512->10)",
+    "optimizer": "SGD",
+    "learning_rate": 0.001,
+    "epochs": 5,
+    "batch_size": 64,
+    "final_test_loss": 1.9827,
+    "final_test_accuracy": 30.91,
+    "training_time_seconds": 88.2,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 2.270142679748535,
+        "val_loss": 2.2370827562490088,
+        "val_acc": 21.39
+      },
+      {
+        "epoch": 2,
+        "train_loss": 2.2031770812988283,
+        "val_loss": 2.1649166793580266,
+        "val_acc": 25.509999999999998
+      },
+      {
+        "epoch": 3,
+        "train_loss": 2.1323791161346435,
+        "val_loss": 2.0953087609285004,
+        "val_acc": 27.35
+      },
+      {
+        "epoch": 4,
+        "train_loss": 2.0687752216339113,
+        "val_loss": 2.0350718308406273,
+        "val_acc": 29.439999999999998
+      },
+      {
+        "epoch": 5,
+        "train_loss": 2.013475160598755,
+        "val_loss": 1.9827348950562205,
+        "val_acc": 30.91
+      }
+    ]
+  },
+  "optimized": {
+    "architecture": "Deep CNN (Conv2D(32->64->128->128) + BatchNorm + MaxPool + Dropout + Dense(512->10))",
+    "optimizer": "Adam (weight_decay=1e-4)",
+    "learning_rate": 0.001,
+    "epochs": 8,
+    "batch_size": 64,
+    "final_test_loss": 0.5323,
+    "final_test_accuracy": 81.48,
+    "training_time_seconds": 1709.2,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 1.3084256058120727,
+        "val_loss": 0.8943682601497431,
+        "val_acc": 68.89999999999999
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.9512773692703247,
+        "val_loss": 0.7791803023617738,
+        "val_acc": 72.41
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.8281172721862793,
+        "val_loss": 0.6708875347854225,
+        "val_acc": 76.68
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.7470267059326172,
+        "val_loss": 0.6341251379745022,
+        "val_acc": 77.73
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.6817545010375976,
+        "val_loss": 0.6042426701184291,
+        "val_acc": 78.82000000000001
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.6317786850738525,
+        "val_loss": 0.5687082187764964,
+        "val_acc": 80.42
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.5901454096603393,
+        "val_loss": 0.5560659384651548,
+        "val_acc": 81.04
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.5402578672742844,
+        "val_loss": 0.5322874184626682,
+        "val_acc": 81.47999999999999
+      }
+    ]
+  },
+  "accuracy_gain_percent": 50.57
+}
