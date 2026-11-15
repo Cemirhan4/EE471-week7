@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chip.addEventListener('click', () => {
           document.querySelectorAll('.sample-chip').forEach(c => c.classList.remove('selected'));
           chip.classList.add('selected');
-          selectSample(sample.filename, sample.name);
+          selectSample(sample.filename, sample.name, sample.data_uri);
         });
 
         samplesChips.appendChild(chip);
@@ -98,19 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function selectSample(filename, displayName) {
+  function selectSample(filename, displayName, dataUri) {
     currentFile = null;
     selectedSampleName = filename;
 
-    // Show preview directly from test folder
-    const folder = currentDataset === 'fashion' ? 'FashionMNIST' : 'CIFAR10';
-    // Load as local image
-    imagePreview.src = `/${folder}/test_images/${filename}`;
-    // Fallback if not directly routed
-    imagePreview.onerror = () => {
-      // In Flask, static route or standard data
-      imagePreview.src = `/api/classify?sample_view=1`;
-    };
+    // Use instant embedded Base64 data URI (guaranteed zero 404s) or fallback endpoint
+    if (dataUri) {
+      imagePreview.src = dataUri;
+    } else {
+      imagePreview.src = `/api/sample-image/${currentDataset}/${encodeURIComponent(filename)}`;
+    }
 
     previewFilename.textContent = `Sample: ${displayName}`;
     dropContentIdle.style.display = 'none';

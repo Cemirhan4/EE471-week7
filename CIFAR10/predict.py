@@ -2,7 +2,15 @@ import os
 import torch
 from PIL import Image
 from torchvision import transforms
-from cog import BasePredictor, Input, Path
+try:
+    from cog import BasePredictor, Input, Path
+except ImportError:
+    class BasePredictor:
+        pass
+    def Input(**kwargs):
+        return None
+    class Path(str):
+        pass
 
 from model import CIFAR_CLASSES, CIFARBaselineMLP, CIFAROptimizedCNN
 

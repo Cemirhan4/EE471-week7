@@ -4,8 +4,8 @@ import json
 import base64
 import requests
 import torch
-from PIL import Image
-from flask import Flask, render_template, request, jsonify
+from PIL import Image, ImageOps
+from flask import Flask, render_template, request, jsonify, send_from_directory, send_file
 from werkzeug.utils import secure_filename
 from torchvision import transforms
 
@@ -118,17 +118,78 @@ def get_samples():
     )
     if not os.path.exists(samples_dir):
         return jsonify({"samples": []})
-    samples = [
-        {"name": f.replace('.png', '').replace('_', ' ').title(), "filename": f}
-        for f in os.listdir(samples_dir) if f.endswith('.png')
-    ]
+
+    samples = []
+    for f in sorted(os.listdir(samples_dir)):
+        if f.endswith('.png'):
+            f_path = os.path.join(samples_dir, f)
+            data_uri = ""
+            try:
+                with open(f_path, "rb") as img_file:
+                    b64 = base64.b64encode(img_file.read()).decode("utf-8")
+                    data_uri = f"data:image/png;base64,{b64}"
+            except Exception:
+                pass
+            samples.append({
+                "name": f.replace('.png', '').replace('_', ' ').title(),
+                "filename": f,
+                "data_uri": data_uri
+            })
     return jsonify({"samples": samples})
+
+
+@app.route('/api/sample-image/<dataset>/<filename>')
+def get_sample_image(dataset, filename):
+    dataset = dataset.lower()
+    folder = (
+        os.path.join(ROOT_DIR, "FashionMNIST", "test_images")
+        if dataset == 'fashion'
+        else os.path.join(ROOT_DIR, "CIFAR10", "test_images")
+    )
+    safe_name = secure_filename(filename)
+    full_path = os.path.join(folder, safe_name)
+    if os.path.exists(full_path):
+        return send_file(full_path, mimetype='image/png')
+    return jsonify({"error": "File not found"}), 404
+
+
+def preprocess_fashion_image(img):
+    """
+    Intelligently adapts real-world / web images for Fashion-MNIST:
+    - Handles alpha transparency by compositing over white
+    - Checks boundary & overall pixel luminance: Fashion-MNIST uses pitch black background (0)
+      with light garments (>0). If an uploaded image has a light/white background,
+      we automatically invert it so the model recognizes the garment contour accurately.
+    """
+    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+        bg = Image.new('RGB', img.size, (255, 255, 255))
+        if img.mode != 'RGBA':
+            img = img.convert('RGBA')
+        bg.paste(img, mask=img.split()[3])
+        img = bg
+
+    gray = img.convert('L')
+    
+    import numpy as np
+    arr = np.array(gray)
+    border_pixels = np.concatenate([arr[0, :], arr[-1, :], arr[:, 0], arr[:, -1]])
+    border_mean = float(np.mean(border_pixels))
+    overall_mean = float(np.mean(arr))
+
+    inverted = False
+    if border_mean > 70 or overall_mean > 100:
+        gray = ImageOps.invert(gray)
+        inverted = True
+
+    print(f"[PREPROCESS FASHION] Border: {border_mean:.1f}, Mean: {overall_mean:.1f} -> Auto-Inverted: {inverted}")
+    return gray
 
 
 def local_infer(image_path, dataset):
     img = Image.open(image_path)
     if dataset == 'fashion':
-        tensor = fashion_transform(img).unsqueeze(0).to(device)
+        processed_img = preprocess_fashion_image(img)
+        tensor = fashion_transform(processed_img).unsqueeze(0).to(device)
         classes = FASHION_CLASSES
         with torch.no_grad():
             b_out = fashion_baseline(tensor)

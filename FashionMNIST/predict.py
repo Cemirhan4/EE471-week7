@@ -1,8 +1,16 @@
 import os
 import torch
-from PIL import Image
+from PIL import Image, ImageOps
 from torchvision import transforms
-from cog import BasePredictor, Input, Path
+try:
+    from cog import BasePredictor, Input, Path
+except ImportError:
+    class BasePredictor:
+        pass
+    def Input(**kwargs):
+        return None
+    class Path(str):
+        pass
 
 from model import FASHION_CLASSES, FashionBaselineMLP, FashionOptimizedCNN
 
@@ -53,8 +61,26 @@ class Predictor(BasePredictor):
         print(f"[RUN] Received image: {image}")
         img = Image.open(str(image))
 
+        # Auto-invert white background to match Fashion-MNIST black background
+        if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+            bg = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode != 'RGBA':
+                img = img.convert('RGBA')
+            bg.paste(img, mask=img.split()[3])
+            img = bg
+
+        gray = img.convert('L')
+        w, h = gray.size
+        sample_points = [
+            (0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1),
+            (w // 2, 0), (0, h // 2), (w - 1, h // 2), (w // 2, h - 1)
+        ]
+        avg_border = sum(gray.getpixel(pt) for pt in sample_points) / len(sample_points)
+        if avg_border > 120:
+            gray = ImageOps.invert(gray)
+
         # Preprocess image into tensor: [1, 1, 28, 28]
-        tensor = self.transform(img).unsqueeze(0).to(self.device)
+        tensor = self.transform(gray).unsqueeze(0).to(self.device)
 
         with torch.no_grad():
             baseline_out = self.baseline_model(tensor)
